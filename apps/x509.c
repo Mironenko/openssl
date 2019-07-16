@@ -632,14 +632,16 @@ int x509_main(int argc, char **argv)
     }
 
     if (copy_ext_flag) {
-        if (!reqfile) {
+        if (!(reqfile || x509req)) {
             BIO_printf(bio_err, "ERROR: -copy_extensions can only be used when using -toreq or -req\n");
             goto end;
         }
-        if (!copy_extensions(x, req, copy_ext_type)) {
-            BIO_printf(bio_err, "ERROR: adding extensions from request\n");
-            ERR_print_errors(bio_err);
-            goto end;
+        if (reqfile) {
+            if (!copy_extensions(x, req, copy_ext_type)) {
+                BIO_printf(bio_err, "ERROR: adding extensions from request\n");
+                ERR_print_errors(bio_err);
+                goto end;
+            }
         }
     }
 
@@ -894,6 +896,11 @@ int x509_main(int argc, char **argv)
                 if (rq == NULL) {
                     ERR_print_errors(bio_err);
                     goto end;
+                }
+                if (copy_ext_flag && copy_ext_type) {
+                    const STACK_OF(X509_EXTENSION)* extlist = X509_get0_extensions(x);
+                    if (!X509_REQ_add_extensions(rq, extlist))
+                        BIO_printf(bio_err, "ERROR: adding extensions from certificate\n");
                 }
                 if (!noout) {
                     X509_REQ_print_ex(out, rq, get_nameopt(), X509_FLAG_COMPAT);
