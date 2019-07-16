@@ -61,7 +61,7 @@ typedef enum OPTION_choice {
     OPT_SUBJECT_HASH_OLD,
     OPT_ISSUER_HASH_OLD,
     OPT_BADSIG, OPT_MD, OPT_ENGINE, OPT_NOCERT, OPT_PRESERVE_DATES,
-    OPT_R_ENUM, OPT_EXT
+    OPT_R_ENUM, OPT_EXT, OPT_COPY_EXTENSIONS
 } OPTION_CHOICE;
 
 const OPTIONS x509_options[] = {
@@ -150,6 +150,8 @@ const OPTIONS x509_options[] = {
     {"engine", OPT_ENGINE, 's', "Use engine, possibly a hardware device"},
 #endif
     {"preserve_dates", OPT_PRESERVE_DATES, '-', "preserve existing dates when signing"},
+    {"copy_extensions", OPT_COPY_EXTENSIONS, 's',
+     "Select mode of adding extensions specified in request to certificate"},
     {NULL}
 };
 
@@ -185,7 +187,7 @@ int x509_main(int argc, char **argv)
     int ocsp_uri = 0, trustout = 0, clrtrust = 0, clrreject = 0, aliasout = 0;
     int ret = 1, i, num = 0, badsig = 0, clrext = 0, nocert = 0;
     int text = 0, serial = 0, subject = 0, issuer = 0, startdate = 0, ext = 0;
-    int enddate = 0;
+    int copy_ext_type = EXT_COPY_NONE, copy_ext_flag = 0, enddate = 0;
     time_t checkoffset = 0;
     unsigned long certflag = 0;
     int preserve_dates = 0;
@@ -471,6 +473,12 @@ int x509_main(int argc, char **argv)
         case OPT_MD:
             if (!opt_md(opt_unknown(), &digest))
                 goto opthelp;
+            break;
+        case OPT_COPY_EXTENSIONS:
+            if (!set_ext_copy(&copy_ext_type, opt_arg()))
+                goto opthelp;
+            copy_ext_flag = 1;
+            break;
         }
     }
     argc = opt_num_rest();
@@ -621,6 +629,18 @@ int x509_main(int argc, char **argv)
             goto end;
         if (fsubj != NULL && !X509_set_subject_name(x, fsubj))
             goto end;
+    }
+
+    if (copy_ext_flag) {
+        if (!reqfile) {
+            BIO_printf(bio_err, "ERROR: -copy_extensions can only be used when using -toreq or -req\n");
+            goto end;
+        }
+        if (!copy_extensions(x, req, copy_ext_type)) {
+            BIO_printf(bio_err, "ERROR: adding extensions from request\n");
+            ERR_print_errors(bio_err);
+            goto end;
+        }
     }
 
     if (CA_flag) {
