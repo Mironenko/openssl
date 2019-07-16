@@ -19,6 +19,51 @@
 #include <openssl/buffer.h>
 #include <openssl/pem.h>
 
+X509_REQ *X509_to_X509_REQ_ex(X509 *x, EVP_PKEY *pkey, const EVP_MD *md)
+{
+    X509_REQ *ret;
+    X509_REQ_INFO *ri;
+    int i;
+    EVP_PKEY *pktmp;
+
+    ret = X509_REQ_new();
+    if (ret == NULL) {
+        X509err(X509_F_X509_TO_X509_REQ, ERR_R_MALLOC_FAILURE);
+        goto err;
+    }
+
+    ri = &ret->req_info;
+
+    ri->version->length = 1;
+    ri->version->data = OPENSSL_malloc(1);
+    if (ri->version->data == NULL)
+        goto err;
+    ri->version->data[0] = 0;   /* version == 0 */
+
+    if (!X509_REQ_set_subject_name(ret, X509_get_subject_name(x)))
+        goto err;
+
+    pktmp = X509_get0_pubkey(x);
+    if (pktmp == NULL)
+        goto err;
+    i = X509_REQ_set_pubkey(ret, pktmp);
+    if (!i)
+        goto err;
+
+    const STACK_OF(X509_EXTENSION)* extlist = X509_get0_extensions(x);
+    if (!X509_REQ_add_extensions(ret, extlist) && X509v3_get_ext_count(extlist)>0)
+        goto err;
+
+    if (pkey != NULL) {
+        if (!X509_REQ_sign(ret, pkey, md))
+            goto err;
+    }
+    return ret;
+ err:
+    X509_REQ_free(ret);
+    return NULL;
+}
+
 X509_REQ *X509_to_X509_REQ(X509 *x, EVP_PKEY *pkey, const EVP_MD *md)
 {
     X509_REQ *ret;

@@ -1,4 +1,4 @@
-
+﻿
  OpenSSL CHANGES
  _______________
 
@@ -8,6 +8,9 @@
  release branch.
 
  Changes between 1.1.1 and 3.0.0 [xx XXX xxxx]
+
+  *) Added X509_to_X509_REQ_ex function. It is allows to copy extensions from certificate to request.
+     [Kirill Stefanenkov <kirill_stefanenkov@rambler.ru>]
 
   *) Enforce a minimum DH modulus size of 512 bits.
      [Bernd Edlinger]
