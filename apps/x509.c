@@ -867,7 +867,7 @@ int x509_main(int argc, char **argv)
                                   CApkey, sigopts,
                                   CAserial, CA_createserial, days, clrext,
                                   extconf, extsect, reqfile ? copy_ext_type : EXT_COPY_NONE, req,
-    				              sno, reqfile, preserve_dates))
+                                  sno, reqfile, preserve_dates))
                     goto end;
             } else if (x509req == i) {
                 EVP_PKEY *pk;
@@ -1069,7 +1069,7 @@ static int x509_certify(X509_STORE *ctx, const char *CAfile, const EVP_MD *diges
         if (!X509V3_EXT_add_nconf(conf, &ctx2, section, x))
             goto end;
     }
-	if (!copy_extensions(x, req, copy_ext_type)) {
+    if (!copy_extensions(x, req, copy_ext_type)) {
         goto end;
     }
     if (!do_X509_sign(x, pkey, digest, sigopts))
