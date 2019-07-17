@@ -886,7 +886,7 @@ int x509_main(int argc, char **argv)
                 BIO_printf(bio_err, "Generating certificate request\n");
 
                 if (copy_ext_flag && copy_ext_type != EXT_COPY_NONE)
-                    rq = X509_to_X509_REQ_EX(x, pk, digest);
+                    rq = X509_to_X509_REQ_ex(x, pk, digest);
                 else
                     rq = X509_to_X509_REQ(x, pk, digest);
                 EVP_PKEY_free(pk);

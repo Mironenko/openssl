@@ -19,7 +19,7 @@
 #include <openssl/buffer.h>
 #include <openssl/pem.h>
 
-X509_REQ *X509_to_X509_REQ_EX(X509 *x, EVP_PKEY *pkey, const EVP_MD *md)
+X509_REQ *X509_to_X509_REQ_ex(X509 *x, EVP_PKEY *pkey, const EVP_MD *md)
 {
     X509_REQ *ret;
     X509_REQ_INFO *ri;
