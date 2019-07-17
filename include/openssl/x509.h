@@ -497,6 +497,7 @@ const char *X509_get_default_cert_dir_env(void);
 const char *X509_get_default_cert_file_env(void);
 const char *X509_get_default_private_dir(void);
 
+X509_REQ *X509_to_X509_REQ_EX(X509 *x, EVP_PKEY *pkey, const EVP_MD *md);
 X509_REQ *X509_to_X509_REQ(X509 *x, EVP_PKEY *pkey, const EVP_MD *md);
 X509 *X509_REQ_to_X509(X509_REQ *r, int days, EVP_PKEY *pkey);
 

@@ -885,16 +885,14 @@ int x509_main(int argc, char **argv)
 
                 BIO_printf(bio_err, "Generating certificate request\n");
 
-                rq = X509_to_X509_REQ(x, pk, digest);
+                if (copy_ext_flag && copy_ext_type != EXT_COPY_NONE)
+                    rq = X509_to_X509_REQ_EX(x, pk, digest);
+                else
+                    rq = X509_to_X509_REQ(x, pk, digest);
                 EVP_PKEY_free(pk);
                 if (rq == NULL) {
                     ERR_print_errors(bio_err);
                     goto end;
-                }
-                if (copy_ext_flag && copy_ext_type != EXT_COPY_NONE) {
-                    const STACK_OF(X509_EXTENSION)* extlist = X509_get0_extensions(x);
-                    if (!X509_REQ_add_extensions(rq, extlist))
-                        BIO_printf(bio_err, "ERROR: adding extensions from certificate\n");
                 }
                 if (!noout) {
                     X509_REQ_print_ex(out, rq, get_nameopt(), X509_FLAG_COMPAT);
