@@ -35,13 +35,14 @@
 static int callb(int ok, X509_STORE_CTX *ctx);
 static int sign(X509 *x, EVP_PKEY *pkey, EVP_PKEY *fkey, int days, int clrext,
                 const EVP_MD *digest, CONF *conf, const char *section,
-                int preserve_dates);
+                int copy_ext_type, X509_REQ *req, int preserve_dates);
 static int x509_certify(X509_STORE *ctx, const char *CAfile, const EVP_MD *digest,
                         X509 *x, X509 *xca, EVP_PKEY *pkey,
-                        STACK_OF(OPENSSL_STRING) *sigopts, const char *serialfile,
-                        int create, int days, int clrext, CONF *conf,
-                        const char *section, ASN1_INTEGER *sno, int reqfile,
-                        int preserve_dates);
+                        STACK_OF(OPENSSL_STRING) *sigopts,
+                        const char *serialfile, int create,
+                        int days, int clrext, CONF *conf, const char *section,
+                        int copy_ext_type, X509_REQ *req,
+                        ASN1_INTEGER *sno, int reqfile, int preserve_dates);
 static int purpose_print(BIO *bio, X509 *cert, X509_PURPOSE *pt);
 static int print_x509v3_exts(BIO *bio, X509 *x, const char *exts);
 
@@ -631,18 +632,9 @@ int x509_main(int argc, char **argv)
             goto end;
     }
 
-    if (copy_ext_flag) {
-        if (!(reqfile || x509req)) {
-            BIO_printf(bio_err, "ERROR: -copy_extensions can only be used when using -toreq or -req\n");
-            goto end;
-        }
-        if (reqfile) {
-            if (!copy_extensions(x, req, copy_ext_type)) {
-                BIO_printf(bio_err, "ERROR: adding extensions from request\n");
-                ERR_print_errors(bio_err);
-                goto end;
-            }
-        }
+    if (copy_ext_flag && !(reqfile || x509req)) {
+        BIO_printf(bio_err, "ERROR: -copy_extensions can only be used when using -toreq or -req\n");
+        goto end;
     }
 
     if (CA_flag) {
@@ -859,7 +851,8 @@ int x509_main(int argc, char **argv)
                 }
 
                 if (!sign(x, Upkey, fkey, days, clrext, digest, extconf,
-                          extsect, preserve_dates))
+                          extsect, reqfile ? copy_ext_type : EXT_COPY_NONE, req,
+                          preserve_dates))
                     goto end;
             } else if (CA_flag == i) {
                 BIO_printf(bio_err, "Getting CA Private Key\n");
@@ -873,7 +866,8 @@ int x509_main(int argc, char **argv)
                 if (!x509_certify(ctx, CAfile, digest, x, xca,
                                   CApkey, sigopts,
                                   CAserial, CA_createserial, days, clrext,
-                                  extconf, extsect, sno, reqfile, preserve_dates))
+                                  extconf, extsect, reqfile ? copy_ext_type : EXT_COPY_NONE, req,
+    				              sno, reqfile, preserve_dates))
                     goto end;
             } else if (x509req == i) {
                 EVP_PKEY *pk;
@@ -1014,6 +1008,7 @@ static int x509_certify(X509_STORE *ctx, const char *CAfile, const EVP_MD *diges
                         STACK_OF(OPENSSL_STRING) *sigopts,
                         const char *serialfile, int create,
                         int days, int clrext, CONF *conf, const char *section,
+                        int copy_ext_type, X509_REQ *req,
                         ASN1_INTEGER *sno, int reqfile, int preserve_dates)
 {
     int ret = 0;
@@ -1074,7 +1069,9 @@ static int x509_certify(X509_STORE *ctx, const char *CAfile, const EVP_MD *diges
         if (!X509V3_EXT_add_nconf(conf, &ctx2, section, x))
             goto end;
     }
-
+	if (!copy_extensions(x, req, copy_ext_type)) {
+        goto end;
+    }
     if (!do_X509_sign(x, pkey, digest, sigopts))
         goto end;
     ret = 1;
@@ -1123,7 +1120,7 @@ static int callb(int ok, X509_STORE_CTX *ctx)
 /* self-issue; self-sign unless a forced public key (fkey) is given */
 static int sign(X509 *x, EVP_PKEY *pkey, EVP_PKEY *fkey, int days, int clrext,
                 const EVP_MD *digest, CONF *conf, const char *section,
-                int preserve_dates)
+                int copy_ext_type, X509_REQ *req, int preserve_dates)
 {
 
     if (!X509_set_issuer_name(x, X509_get_subject_name(x)))
@@ -1143,6 +1140,9 @@ static int sign(X509 *x, EVP_PKEY *pkey, EVP_PKEY *fkey, int days, int clrext,
         X509V3_set_nconf(&ctx, conf);
         if (!X509V3_EXT_add_nconf(conf, &ctx, section, x))
             goto err;
+    }
+    if (!copy_extensions(x, req, copy_ext_type)) {
+        goto err;
     }
     if (!X509_sign(x, pkey, digest))
         goto err;
