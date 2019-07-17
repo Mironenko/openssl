@@ -897,7 +897,7 @@ int x509_main(int argc, char **argv)
                     ERR_print_errors(bio_err);
                     goto end;
                 }
-                if (copy_ext_flag && copy_ext_type) {
+                if (copy_ext_flag && copy_ext_type != EXT_COPY_NONE) {
                     const STACK_OF(X509_EXTENSION)* extlist = X509_get0_extensions(x);
                     if (!X509_REQ_add_extensions(rq, extlist))
                         BIO_printf(bio_err, "ERROR: adding extensions from certificate\n");
