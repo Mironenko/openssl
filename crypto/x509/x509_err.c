@@ -13,6 +13,7 @@
 
 #ifndef OPENSSL_NO_ERR
 
+    {ERR_PACK(ERR_LIB_X509, X509_F_X509_TO_X509_REQ_EX, 0), "X509_to_X509_REQ_ex"},
 static const ERR_STRING_DATA X509_str_reasons[] = {
     {ERR_PACK(ERR_LIB_X509, 0, X509_R_AKID_MISMATCH), "akid mismatch"},
     {ERR_PACK(ERR_LIB_X509, 0, X509_R_BAD_SELECTOR), "bad selector"},
