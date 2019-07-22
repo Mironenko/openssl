@@ -1069,6 +1069,8 @@ static int x509_certify(X509_STORE *ctx, const char *CAfile, const EVP_MD *diges
     }
     if (!copy_extensions(x, req, copy_ext_type)) {
         goto end;
+    } else if (X509_get_ext_count(x) > 0) {
+        X509_set_version(x, 2);
     }
     if (!do_X509_sign(x, pkey, digest, sigopts))
         goto end;
@@ -1141,6 +1143,8 @@ static int sign(X509 *x, EVP_PKEY *pkey, EVP_PKEY *fkey, int days, int clrext,
     }
     if (!copy_extensions(x, req, copy_ext_type)) {
         goto err;
+    } else if (X509_get_ext_count(x) > 0) {
+        X509_set_version(x, 2);
     }
     if (!X509_sign(x, pkey, digest))
         goto err;
