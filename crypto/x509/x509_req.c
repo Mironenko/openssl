@@ -51,7 +51,7 @@ X509_REQ *X509_to_X509_REQ_ex(X509 *x, EVP_PKEY *pkey, const EVP_MD *md)
         goto err;
 
     const STACK_OF(X509_EXTENSION)* extlist = X509_get0_extensions(x);
-    if (!X509_REQ_add_extensions(ret, extlist))
+    if (!X509_REQ_add_extensions(ret, extlist) && X509v3_get_ext_count(extlist)>0)
         goto err;
 
     if (pkey != NULL) {
