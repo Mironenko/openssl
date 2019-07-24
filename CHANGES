@@ -9,6 +9,9 @@
 
  Changes between 1.1.1 and 3.0.0 [xx XXX xxxx]
 
+  *) Added X509_to_X509_REQ_ex function. It is allows to copy extensions from certificate to request.
+     [Kirill Stefanenkov <kirill_stefanenkov@rambler.ru>]
+
   *) Changed DH parameters to generate the order q subgroup instead of 2q.
      Previously generated DH parameters are still accepted by DH_check
      but DH_generate_key works around that by clearing bit 0 of the
@@ -13419,6 +13422,3 @@ des-cbc           3624.96k     5258.21k     5530.91k     5624.30k     5628.26k
   *) A minor bug in ssl/s3_clnt.c where there would always be 4 0
      bytes sent in the client random.
      [Edward Bishop <ebishop@spyglass.com>]
-
-  *) Added X509_to_X509_REQ_ex function. It is allows to copy extensions from certificate to request.
-     [Kirill Stefanenkov <kirill_stefanenkov@rambler.ru>]
