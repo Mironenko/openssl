@@ -85,6 +85,7 @@ int ERR_load_X509_strings(void);
 #  define X509_F_X509_STORE_NEW                            0
 #  define X509_F_X509_TO_X509_REQ                          0
 #  define X509_F_X509_TO_X509_REQ_EX                       0
+#  define X509_F_DO_X509_TO_X509_REQ_EX                    0
 #  define X509_F_X509_TRUST_ADD                            0
 #  define X509_F_X509_TRUST_SET                            0
 #  define X509_F_X509_VERIFY                               0

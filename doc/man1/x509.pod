@@ -498,15 +498,17 @@ or certificate request.
 
 =item B<-copy_extensions val>
 
-Option which determines how extensions in certificate requests (if B<-req>
-option present) or certificate (if B<-x509toreq> option present) should be
-handled. If set to B<none> or this option is not present then extensions are
-ignored and not copied to the certificate or certificate request.
-If set to B<copy> then any extensions present in the request or certificate
-that are not already present are copied to the certificate or request.
-If set to B<copyall> then all extensions in the request or certificate
-are copied to the certificate or request: if the extension is already present
-in the certificate or request it is deleted first.
+Option specifies how extensions from SOURCE -- certificate request (if B<-req>
+option present) or certificate (if B<-x509toreq> option present) -- should be
+handled when transferred to TARGET -- certificate or certificate request, 
+accordingly. 
+If set to B<none> or if the option is not present then extensions are ignored 
+and not copied from SOURCE to TARGET.
+If set to B<copy> then any extension present in the SOURCE but not yet present 
+in TARGET is copied from SOURCE to TARGET.
+If set to B<copyall> then all extensions in the SOURCE are copied to TARGET;
+if the extension is already present in TARGET (e.g. as a result of B<-extfile>
+option being specified), it is overwritten.
 
 =back
 
