@@ -19,16 +19,6 @@
 #include <openssl/buffer.h>
 #include <openssl/pem.h>
 
-X509_REQ *X509_to_X509_REQ_ex(X509 *x, EVP_PKEY *pkey, const EVP_MD *md)
-{
-    return do_X509_to_X509_REQ_ex(x, pkey, md, 1);
-}
-
-X509_REQ *X509_to_X509_REQ(X509 *x, EVP_PKEY *pkey, const EVP_MD *md)
-{
-    return do_X509_to_X509_REQ_ex(x, pkey, md, 0);
-}
-
 X509_REQ *do_X509_to_X509_REQ_ex(X509 *x, EVP_PKEY *pkey, const EVP_MD *md,
                                  char copy_exts)
 {
@@ -39,7 +29,7 @@ X509_REQ *do_X509_to_X509_REQ_ex(X509 *x, EVP_PKEY *pkey, const EVP_MD *md,
 
     ret = X509_REQ_new();
     if (ret == NULL) {
-        X509err(copy_exts ? X509_F_X509_TO_X509_REQ_EX : X509_F_X509_TO_X509_REQ, ERR_R_MALLOC_FAILURE);
+        X509err(X509_F_DO_X509_TO_X509_REQ_EX, ERR_R_MALLOC_FAILURE);
         goto err;
     }
 
@@ -76,6 +66,18 @@ X509_REQ *do_X509_to_X509_REQ_ex(X509 *x, EVP_PKEY *pkey, const EVP_MD *md,
     X509_REQ_free(ret);
     return NULL;
 }
+
+X509_REQ *X509_to_X509_REQ_ex(X509 *x, EVP_PKEY *pkey, const EVP_MD *md)
+{
+    return do_X509_to_X509_REQ_ex(x, pkey, md, 1);
+}
+
+X509_REQ *X509_to_X509_REQ(X509 *x, EVP_PKEY *pkey, const EVP_MD *md)
+{
+    return do_X509_to_X509_REQ_ex(x, pkey, md, 0);
+}
+
+
 
 EVP_PKEY *X509_REQ_get_pubkey(X509_REQ *req)
 {

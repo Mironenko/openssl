@@ -32,6 +32,7 @@ int ERR_load_X509_strings(void);
 #  define X509_F_COMMON_VERIFY_SM2                         0
 #  define X509_F_DANE_I2D                                  0
 #  define X509_F_DIR_CTRL                                  0
+#  define X509_F_DO_X509_TO_X509_REQ_EX                    0
 #  define X509_F_GET_CERT_BY_SUBJECT                       0
 #  define X509_F_I2D_X509_AUX                              0
 #  define X509_F_LOOKUP_CERTS_SK                           0
@@ -84,8 +85,6 @@ int ERR_load_X509_strings(void);
 #  define X509_F_X509_STORE_CTX_PURPOSE_INHERIT            0
 #  define X509_F_X509_STORE_NEW                            0
 #  define X509_F_X509_TO_X509_REQ                          0
-#  define X509_F_X509_TO_X509_REQ_EX                       0
-#  define X509_F_DO_X509_TO_X509_REQ_EX                    0
 #  define X509_F_X509_TRUST_ADD                            0
 #  define X509_F_X509_TRUST_SET                            0
 #  define X509_F_X509_VERIFY                               0
